@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: windows Server.
+Parameters:
+  VpcId:
+    Description: Select your VPC Id.
+    Type: 'AWS::EC2::VPC::Id'
+    Default: ''
+  SubnetId1:
+    Description: Select your Subnet Id ap-south-1a.
+    Type: 'AWS::EC2::Subnet::Id'
+    Default: ''
+  SshServerKeyName:
+    Description: Name of an existing EC2 KeyPair to Prod Server.
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+  InstanceAMIId:
+    Description: Type the base Ami Id.
+    Type: String
+    Default: 'ami-04132f301c3e4f138'
+  InstanceType:
+    Description: Type the instance.
+    Type: String
+    Default: t2.micro
+  InstanceSecurityGroupName:
+    Description: Enter the security Group Name.
+    Type: String
+    Default: 'windows-test-Server-SG'
+  Appname:
+    Description: Enter the Application Name.
+    Type: String
+    Default: 'test-Server'
+  Clustername:
+    Description: Enter the Cluster Name.
+    Type: String
+    Default: 'na'
+  Environmentname:
+    Description: Enter the Environmentname Name.
+    Type: String
+    Default: 'uat'
+  RoleTag:
+    Description: Enter the role of the Resource.
+    Type: String
+    Default: 'windows-Server'
+ #SecurityGroupIds:
+    #Type: String
+    #Default: 'sg-037a8670dcb5d9e3b'
+  Remark:
+    Description: Enter the Rake Name.
+    Type: String
+    Default: 'windows-Server'  
+  Ec2RootVolumeSize:
+    Description: RootVolumeSize minimum value in GB.
+    Type: Number
+    MinValue: 30
+  InstanceName1:
+    Description: Enter the Name of the Instance.
+    Default: 'Test-Server'
+    Type: String
+  ProdRoles:
+    Description: Enter the Role Name.
+    Type: String
+    Default: 'test-ssmfull-role'
+Resources:
+  ProdWebInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref ProdRoles
+  EC2Ec2Instance1:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      DisableApiTermination: 'True'
+      InstanceInitiatedShutdownBehavior: stop
+      IamInstanceProfile: !Ref ProdWebInstanceProfile
+      ImageId: !Ref InstanceAMIId
+      SecurityGroupIds: 
+        - sg-037a8670dcb5d9e3b
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref SshServerKeyName
+      Monitoring: 'false'
+      Tags:
+        - Key: Name
+          Value: !Ref 'AWS::StackName'
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            DeleteOnTermination: 'true'
+            VolumeSize: !Ref Ec2RootVolumeSize
+            Encrypted: 'true'
+            VolumeType: "gp3"    
+      Tags:
+        - Key: Name
+          Value: !Ref InstanceName1
+        - Key: backup
+          Value: 'yes:f=1d:r=7d'
+        - Key: appname
+          Value: !Ref Appname
+        - Key: businessunit
+          Value: Default
+        - Key: cluster
+          Value: !Ref Clustername
+        - Key: environment
+          Value: !Ref Environmentname
+        - Key: ownername
+          Value: spicejet
+        - Key: role
+          Value: !Ref RoleTag
+        - Key: starttime
+          Value: na
+        - Key: stoptime
+          Value: na
+        - Key: created_by
+          Value: uipl  
